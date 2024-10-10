@@ -7,8 +7,8 @@ CRON_LOG="${CRON_LOG:-/var/log/cron.log}"
 UID="${UID:-10001}"
 GID="${GID:-10001}"
 
-groupadd -g $GID logrotate
-useradd logrotate -u $UID -g $GID -m -s /bin/bash 
+addgroup -g $GID logrotate
+adduser logrotate -u $UID -g $GID -m -s /bin/bash 
 
 # Create directories if they do not exist
 mkdir -p "$LOG_DIR"
