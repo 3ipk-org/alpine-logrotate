@@ -4,7 +4,11 @@
 LOG_DIR="${LOG_DIR:-/fluent-bit/logs}"
 LOGROTATE_CONF="${LOGROTATE_CONF:-/etc/logrotate.d/my-logs}"
 CRON_LOG="${CRON_LOG:-/var/log/cron.log}"
-CRON_SCHEDULE="${CRON_LOG:-* * * * *}"
+UID="${UID:-10001}"
+GID="${GID:-10001}"
+
+groupadd -g $GID logrotate
+useradd logrotate -u $UID -g $GID -m -s /bin/bash 
 
 # Create directories if they do not exist
 mkdir -p "$LOG_DIR"
@@ -14,19 +18,15 @@ mkdir -p "$(dirname "$CRON_LOG")"
 # Ensure cron log file exists
 touch "$CRON_LOG"
 
+# Start crond
+crond
+
 # Write the custom logrotate configuration to the specified location
 # You can either pass this as a volume or through environment variables
 echo "$LOGROTATE_CONF_CONTENT" > "$LOGROTATE_CONF"
 
 # Fix permissions of the log directory to avoid logrotate permission errors
 chmod 755 "$LOG_DIR"
-
-echo "$CRON_SCHEDULE /usr/sbin/logrotate -f $LOGROTATE_CONF" > /etc/cron.d/logrotate
-chmod 0644 /etc/cron.d/logrotate
-crontab /etc/cron.d/logrotate
-
-# Start crond
-crond
 
 # Run logrotate with the provided configuration
 logrotate -f "$LOGROTATE_CONF"
