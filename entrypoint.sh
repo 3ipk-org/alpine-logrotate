@@ -4,6 +4,7 @@
 LOG_DIR="${LOG_DIR:-/fluent-bit/logs}"
 LOGROTATE_CONF="${LOGROTATE_CONF:-/etc/logrotate.d/my-logs}"
 CRON_LOG="${CRON_LOG:-/var/log/cron.log}"
+CRON_SCHEDULE="${CRON_LOG:-* * * * *}"
 
 # Create directories if they do not exist
 mkdir -p "$LOG_DIR"
@@ -20,7 +21,7 @@ echo "$LOGROTATE_CONF_CONTENT" > "$LOGROTATE_CONF"
 # Fix permissions of the log directory to avoid logrotate permission errors
 chmod 755 "$LOG_DIR"
 
-echo "* * * * * /usr/sbin/logrotate -s /var/lib/logrotate.status $LOGROTATE_CONF >> $CRON_LOG 2>&1" > /etc/cron.d/logrotate
+echo "$CRON_SCHEDULE /usr/sbin/logrotate -f $LOGROTATE_CONF" > /etc/cron.d/logrotate
 chmod 0644 /etc/cron.d/logrotate
 crontab /etc/cron.d/logrotate
 
