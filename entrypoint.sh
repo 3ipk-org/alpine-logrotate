@@ -13,15 +13,19 @@ mkdir -p "$(dirname "$CRON_LOG")"
 # Ensure cron log file exists
 touch "$CRON_LOG"
 
-# Start crond
-crond
-
 # Write the custom logrotate configuration to the specified location
 # You can either pass this as a volume or through environment variables
 echo "$LOGROTATE_CONF_CONTENT" > "$LOGROTATE_CONF"
 
 # Fix permissions of the log directory to avoid logrotate permission errors
 chmod 755 "$LOG_DIR"
+
+echo "* * * * * /usr/sbin/logrotate -s /var/lib/logrotate.status $LOGROTATE_CONF >> $CRON_LOG 2>&1" > /etc/cron.d/logrotate
+chmod 0644 /etc/cron.d/logrotate
+crontab /etc/cron.d/logrotate
+
+# Start crond
+crond
 
 # Run logrotate with the provided configuration
 logrotate -f "$LOGROTATE_CONF"
