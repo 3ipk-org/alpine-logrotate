@@ -8,7 +8,7 @@ UID="${UID:-10001}"
 GID="${GID:-10001}"
 
 addgroup -g $GID logrotate
-adduser -u $UID -g logrotate -s /bin/bash logrotate
+adduser -u $UID -G logrotate -s /bin/bash logrotate
 
 # Create directories if they do not exist
 mkdir -p "$LOG_DIR"
